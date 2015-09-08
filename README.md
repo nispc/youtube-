@@ -9,6 +9,7 @@
 	* `C:\Python34\Scripts\pip.exe install beautiful4`
 
 ### 執行程式
+* 下載 [youtube-data-fetch](https://github.com/nispc/youtube-data-fetch)
 * 請將您的youtube連結存入links.txt檔案
 * 執行`youtube.py`
 * 執行結束後，結果會存在output資料夾中
