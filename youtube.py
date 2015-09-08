@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup as bs
 import csv
 
 import datetime
-now = str(datetime.datetime.now().isoformat())
+now = str(datetime.datetime.now().now().strftime("%Y-%m-%d_%H.%M.%S"))
 
 def num(raw):
     return ''.join(raw.split(","))
@@ -11,7 +11,7 @@ def num(raw):
 startTime = datetime.datetime.now().isoformat()
 
 count = 0
-with open("links.txt", "r") as links, open("output/output-"+now+".csv", "w",  encoding='utf-8') as output:
+with open("links.txt", "r") as links, open("output/output_"+now+".csv", "w",  encoding='utf-8') as output:
     csvw = csv.writer(output)
     csvw.writerow(['title', 'watchViewCount', 'likeCount', 'unlikeCount', 'subscriberCount', 'commentCount'])
 
@@ -22,16 +22,29 @@ with open("links.txt", "r") as links, open("output/output-"+now+".csv", "w",  en
         res = requests.get(url)
         soup = bs(res.text, "html.parser")
 
-        title = soup.select('#eow-title')[0].text.strip()
-        watchViewCount = num(soup.select('.watch-view-count')[0].text.strip())
-        likeCount = num(soup.select('.like-button-renderer-like-button > .yt-uix-button-content')[0].text.strip())
-        unlikeCount = num(soup.select('.like-button-renderer-dislike-button > .yt-uix-button-content')[0].text.strip())
+        try:
+            title = soup.select('#eow-title')[0].text.strip()
+            watchViewCount = num(soup.select('.watch-view-count')[0].text.strip())
+        except:
+            print('#{} error.'.format(count))
+            csvw.writerow(['error'])
+            continue
+
+        try:
+            likeCount = num(soup.select('.like-button-renderer-like-button > .yt-uix-button-content')[0].text.strip())
+        except:
+            likeCount = 0
+
+        try:
+            unlikeCount = num(soup.select('.like-button-renderer-dislike-button > .yt-uix-button-content')[0].text.strip())
+        except:
+            unlikeCount = 0
 
         try:
             commentUrl = 'https://www.youtube.com/all_comments?v=' + id
             res2 = requests.get(commentUrl.strip())
             soup2 = bs(res2.text, "html.parser")
-            commentCount = num(soup2.select('.all-comments > a')[0].text.strip().split()[-1].strip('()'))
+            commentCount = num(soup2.select('.all-comments > a')[0].text.strip().split()[-1].strip(':()'))
         except Exception as e:
             commentCount = 0
             # print(commentUrl.strip()) print(soup2.select('a')[0].text, e)
@@ -48,3 +61,5 @@ with open("links.txt", "r") as links, open("output/output-"+now+".csv", "w",  en
 endTime = datetime.datetime.now().isoformat()
 
 print('開始抓取時間{}\t結束抓取時間{}'.format(startTime, endTime))
+
+input()
